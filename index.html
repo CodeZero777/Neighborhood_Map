@@ -8,16 +8,26 @@
 </head>
 <body>
     <div class="container">
-        <div>
-            <input type="search" data-bind="textInput: query, valueUpdate: 'keyup'" placeholder="  Search..." autofocus autocomplete="off">
-        </div>
+        <input type="search" data-bind="textInput: query, valueUpdate: 'keyup'" placeholder="  Search..." autofocus autocomplete="off">
         <hr>
         <nav id="listplaces" data-bind="foreach: search()">
-            <label data-bind="text: title, click: viewModel.titleListClick"></label>
+            <label data-bind="text: title, click: $parent.titleListClick"></label>
             <hr>
         </nav>
+        <div id="map"></div>
     </div>
-    <div id="map"></div>
+    <script>
+        function initMap() {
+            var map;
+            // creates a new map instance
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: {lat: 38.897676, lng: -77.036483},
+                zoom: 14
+            });
+
+            ko.applyBindings(new viewModel(map));
+        }
+    </script>
     <script async defer src="https://maps.googleapis.com/maps/api/js?v=3&callback=initMap"></script>
     <script src="js/libs/knockout-3.4.0.min.js"></script>
     <script src="js/libs/jquery-1.12.0.min.js"></script>

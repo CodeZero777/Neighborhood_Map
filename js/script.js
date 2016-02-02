@@ -1,15 +1,16 @@
 /*********** MODEL ***********/
 var locations = ko.observableArray([
-    {title: 'The White House', lat: 38.897676, lng:-77.036483, boolTest: true, visible: ko.observable(true)},
-    {title: 'Washington Monument', lat: 38.889463, lng:-77.035237, boolTest: true, visible: ko.observable(true)},
-    {title: 'Lincoln Memorial', lat: 38.889321, lng:-77.050166, boolTest: true, visible: ko.observable(true)},
-    {title: 'National WWII Memorial', lat: 38.889413, lng:-77.040553, boolTest: true, visible: ko.observable(true)},
-    {title: 'Cathedral of St. Matthew the Apostle', lat: 38.916988, lng:-77.036499, boolTest: true, visible: ko.observable(true)},
-    {title: 'International Spy Museum', lat: 38.8969, lng:-77.0234, boolTest: true, visible: ko.observable(true)}
+    {title: 'The White House', lat: 38.897676, lng:-77.036483},
+    {title: 'Washington Monument', lat: 38.889463, lng:-77.035237, },
+    {title: 'Lincoln Memorial', lat: 38.889321, lng:-77.050166},
+    {title: 'National WWII Memorial', lat: 38.889413, lng:-77.040553},
+    {title: 'Cathedral of St. Matthew the Apostle', lat: 38.916988, lng:-77.036499},
+    {title: 'International Spy Museum', lat: 38.8969, lng:-77.0234}
 ]);
 
+
 /************ VIEWMODEL **********/
-function viewModel() {
+function viewModel(map) {
 	var self = this;
 	var infowindow = new google.maps.InfoWindow();
 	var filteredArray = ko.observableArray();
@@ -24,9 +25,9 @@ function viewModel() {
 	    this.marker = new google.maps.Marker({
 			position: new google.maps.LatLng(markerlat, markerlng),
 			animation: google.maps.Animation.DROP,
-			setMap:map
+			map: map
 	    });  
-	}
+	};
 
 	// adds a click event listener to the map instance
 	google.maps.event.addListener(map, 'click', function() {
@@ -47,7 +48,7 @@ function viewModel() {
 
 				return function() {
 					// Call Wiki link and add it to infowindow
-					viewModel.ajaxWiki(heading, infowindow);       
+					self.ajaxWiki(heading, infowindow);       
 					infowindow.open(map, pin.marker);  
 
 					// Animate marker when clicked
@@ -90,52 +91,36 @@ function viewModel() {
 		return self.visibleLocations(); 
 	});
 
+	// called by KO's click handler in the view section
 	self.titleListClick = function(item) {
 		markerClicked = item.pin.marker;
 		google.maps.event.trigger(markerClicked, 'click');
 	}
 
-
-
-	// MediaWiki web API
+	// MediaWiki Web API
 	self.ajaxWiki = function(heading, infowindow) {
 
 		var markersTitle = heading;
 		var wikiPlacesInWashingtonUrl = 'https://en.wikipedia.org/w/api.php?action=query&list=search&format=json&srsearch=' + markersTitle;
 
+		// error handling
 		var wikiRequestTimeout = setTimeout(function() {
-			infowindow.setContent('<h4>' + heading + '</h4>' + 'Failed to get wikipedia resources');
+			infowindow.setContent('<h3>' + heading + '</h3>' + 'Failed to get wikipedia resources');
 		}, 8000);
 
 		$.ajax({
 			url: wikiPlacesInWashingtonUrl,
-			datatype: 'jsonp',
+			dataType: 'jsonp',
 			success: function(data) {
 				console.log(data);
 
-				var titleOfLocation = data[0];
+				var titleOfLocation = data.query.search[0].title;
 				var url = 'http://en.wikipedia.org/wiki/' + titleOfLocation;
-				var content = url;
 
-				infowindow.setContent('<h4>' + heading + '</h4>' + '<a href="' + content + '">' + 'Wikipedia link to ' + heading + '</a>');
+				infowindow.setContent('<h3>' + heading + '</h3>' + '<a href="' + url + '">' + 'Wikipedia link to ' + heading + '</a>');
 
 				clearTimeout(wikiRequestTimeout);
 			}
 		});
 	};
-
-
-
-}
-
-/********** VIEW *************/
-function initMap() {
-	var map;
-	// creates a new map instance
-	map = new google.maps.Map(document.getElementById('map'), {
-        center: {lat: 38.897676, lng: -77.036483},
-        zoom: 14
-    });
-
-	ko.applyBindings(new viewModel());
 }
