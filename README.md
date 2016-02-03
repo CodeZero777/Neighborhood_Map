@@ -5,7 +5,7 @@ GENERAL USAGE NOTES
 
 HOW TO OPEN
 --------------------
-1) click on the link to open application:
+1) You may click on the link below to open application, or download the zip-files by clicking the download zip button and saving the zip files into a folder. Open the folder where the files are stored and double click on the index.html file.
 
   http://codezero777.github.io/Neighborhood_Map
 
